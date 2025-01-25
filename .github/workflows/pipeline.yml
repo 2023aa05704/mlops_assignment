@@ -156,9 +156,10 @@ jobs:
           echo "$PUBLIC_KEY" > mlops-ec2-key.pub && chmod 700 mlops-ec2-key.pub
 
           # Import the public key to AWS
+          PUBLIC_KEY_MATERIAL=$(cat mlops-ec2-key.pub | base64)
           aws ec2 import-key-pair \
             --key-name mlops-ec2-key \
-            --public-key-material mlops-ec2-key.pub
+            --public-key-material "$PUBLIC_KEY_MATERIAL"
 
           INSTANCE_ID=$(aws ec2 run-instances \
             --image-id ${{ env.AMI_ID }} \
