@@ -66,6 +66,54 @@ jobs:
             --output text)
           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
+      - name: Get or create subnet
+        run: |
+          # Try to get the subnet by tag name or region
+          SUBNET_ID=$(aws ec2 describe-subnets \
+            --filters "Name=tag:Name,Values=mlops-ec2-subnet" \
+            --query "Subnets[0].SubnetId" \
+            --output text || echo "None")
+
+          # Check if subnet was found
+          if [ "$SUBNET_ID" == "None" ]; then
+            echo "No existing subnet found. Creating a new subnet..."
+
+            # Create a new subnet (replace with correct VPC ID and CIDR block)
+            # VPC_ID=$(aws ec2 describe-vpcs \
+            #   --query "Vpcs[0].VpcId" \
+            #   --output text)  # This assumes you're using the default VPC
+            # echo "Found existing VPC with ID: $VPC_ID"
+
+            # Check if VPC_ID is valid
+            # if [ "$VPC_ID" == "None" ]; then
+            # echo "No VPC found. Creating a default VPC..."
+            VPC_ID=$(aws ec2 create-vpc \
+              --cidr-block 10.0.0.0/16 \
+              --query "Vpc.VpcId" \
+              --output text)
+            # fi
+
+            # Create subnet in the default VPC or specified VPC
+            SUBNET_ID=$(aws ec2 create-subnet \
+              --vpc-id $VPC_ID \
+              --cidr-block 10.0.1.0/24 \
+              --availability-zone ap-south-1a \
+              --query "Subnet.SubnetId" \
+              --output text)
+
+            # Tag the subnet with a name
+            aws ec2 create-tags \
+              --resources $SUBNET_ID \
+              --tags Key=Name,Value=mlops-ec2-subnet
+
+            echo "Created new subnet with ID: $SUBNET_ID"
+          else
+            echo "Found existing subnet with ID: $SUBNET_ID"
+          fi
+
+          # Set the subnet ID as an environment variable for use in future steps
+          echo "SUBNET_ID=$SUBNET_ID" >> $GITHUB_ENV
+
       - name: Configure Security Group
         run: |
           # Get the security group ID
@@ -117,55 +165,6 @@ jobs:
 
           # Set the security group ID as an environment variable
           echo "SECURITY_GROUP_ID=$SECURITY_GROUP_ID" >> $GITHUB_ENV
-
-
-      - name: Get or create subnet
-        run: |
-          # Try to get the subnet by tag name or region
-          SUBNET_ID=$(aws ec2 describe-subnets \
-            --filters "Name=tag:Name,Values=mlops-ec2-subnet" \
-            --query "Subnets[0].SubnetId" \
-            --output text || echo "None")
-
-          # Check if subnet was found
-          if [ "$SUBNET_ID" == "None" ]; then
-            echo "No existing subnet found. Creating a new subnet..."
-
-            # Create a new subnet (replace with correct VPC ID and CIDR block)
-            # VPC_ID=$(aws ec2 describe-vpcs \
-            #   --query "Vpcs[0].VpcId" \
-            #   --output text)  # This assumes you're using the default VPC
-            # echo "Found existing VPC with ID: $VPC_ID"
-
-            # Check if VPC_ID is valid
-            # if [ "$VPC_ID" == "None" ]; then
-            # echo "No VPC found. Creating a default VPC..."
-            VPC_ID=$(aws ec2 create-vpc \
-              --cidr-block 10.0.0.0/16 \
-              --query "Vpc.VpcId" \
-              --output text)
-            # fi
-
-            # Create subnet in the default VPC or specified VPC
-            SUBNET_ID=$(aws ec2 create-subnet \
-              --vpc-id $VPC_ID \
-              --cidr-block 10.0.1.0/24 \
-              --availability-zone ap-south-1a \
-              --query "Subnet.SubnetId" \
-              --output text)
-
-            # Tag the subnet with a name
-            aws ec2 create-tags \
-              --resources $SUBNET_ID \
-              --tags Key=Name,Value=mlops-ec2-subnet
-
-            echo "Created new subnet with ID: $SUBNET_ID"
-          else
-            echo "Found existing subnet with ID: $SUBNET_ID"
-          fi
-
-          # Set the subnet ID as an environment variable for use in future steps
-          echo "SUBNET_ID=$SUBNET_ID" >> $GITHUB_ENV
 
       - name: Create EC2 instance
         env:
