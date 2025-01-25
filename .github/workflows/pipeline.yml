@@ -258,10 +258,6 @@ jobs:
           echo "================================"
           cat logs/app.log
           echo "================================"
-          curl -i -X POST http://127.0.0.1:5000/predict -H "Content-Type: application/json" -d'{"area": 2000, "bedrooms": 3, "bathrooms": 2, "stories": 2, "parking": 1}'
-          echo "================================"
-          cat logs/app.log
-          echo "================================"
 
       - name: Cleanup EC2 instance, SG and SSH key pair
         if: always()  # Ensures this runs even if previous steps fail
