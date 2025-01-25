@@ -153,7 +153,9 @@ jobs:
           PUBLIC_KEY: ${{ secrets.AWS_EC2_PUB_KEY }}
         run: |
           echo "$PRIVATE_KEY" > mlops-ec2-key && chmod 600 mlops-ec2-key
-          echo "$PUBLIC_KEY" > mlops-ec2-key.pub && chmod 700 mlops-ec2-key.pub
+          echo "$PUBLIC_KEY" > mlops-ec2-key.pub && chmod 700
+
+          echo "$(cat mlops-ec2-key.pub)"
 
           # Import the public key to AWS
           PUBLIC_KEY_MATERIAL=$(cat mlops-ec2-key.pub | base64)
