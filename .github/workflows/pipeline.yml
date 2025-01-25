@@ -205,7 +205,7 @@ jobs:
 
       - name: Build and Run Docker Image on EC2
         run: |
-          scp -i ec2_key.pem -o StrictHostKeyChecking=no Dockerfile ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
+          scp -i ec2_key.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 Dockerfile ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
           echo "dockerfile copied"
           ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           cd /home/ec2-user/
