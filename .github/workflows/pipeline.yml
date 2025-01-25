@@ -3,9 +3,11 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
+      - main
       - m1
   pull_request:
     branches:
+      - main
       - m1
 
 jobs:
@@ -249,11 +251,17 @@ jobs:
           echo "requirements.txt copied .."
           ssh -i mlops-ec2-key -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           cd /home/ec2-user/
-          docker build -t my-mlops-app .
-          docker run -d -p 5000:5000 my-mlops-app
+          docker build -t ml-basic-app .
+          docker run -d -p 5000:5000 ml-basic-app
           EOF
           echo "service running at port 5000 ..."
-          echo "$(curl -i -X POST http://127.0.0.1:5000/predict -H "Content-Type: application/json" -d'{"area": 2000, "bedrooms": 3, "bathrooms": 2, "stories": 2, "parking": 1}')"
+          echo "================================"
+          cat logs/app.log
+          echo "================================"
+          curl -i -X POST http://127.0.0.1:5000/predict -H "Content-Type: application/json" -d'{"area": 2000, "bedrooms": 3, "bathrooms": 2, "stories": 2, "parking": 1}'
+          echo "================================"
+          cat logs/app.log
+          echo "================================"
 
       - name: Cleanup EC2 instance, SG and SSH key pair
         if: always()  # Ensures this runs even if previous steps fail
