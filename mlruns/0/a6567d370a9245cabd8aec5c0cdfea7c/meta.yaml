@@ -1,0 +1,15 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/a6567d370a9245cabd8aec5c0cdfea7c/artifacts
+end_time: 1737822290256
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: a6567d370a9245cabd8aec5c0cdfea7c
+run_name: amazing-wren-48
+run_uuid: a6567d370a9245cabd8aec5c0cdfea7c
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737822289558
+status: 3
+tags: []
+user_id: agupta

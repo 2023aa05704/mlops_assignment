@@ -1,0 +1,15 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/192d8540cb734f5b98b45376eb100da3/artifacts
+end_time: 1737822288018
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 192d8540cb734f5b98b45376eb100da3
+run_name: thoughtful-grub-887
+run_uuid: 192d8540cb734f5b98b45376eb100da3
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737822287579
+status: 3
+tags: []
+user_id: agupta

@@ -9,9 +9,23 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import sklearn
 import boto3
 import os
+import configparser
+
+# Path to your config file
+CONFIG_FILE_PATH = ".aws/aws_config.ini"
+
+# Read the config file
+config = configparser.ConfigParser()
+config.read(CONFIG_FILE_PATH)
+
+# Fetch values from the "aws" section
+aws_access_key_id = config.get("aws", "AWS_ACCESS_KEY_ID")
+aws_secret_access_key = config.get("aws", "AWS_SECRET_ACCESS_KEY")
 
 os.environ['MLFLOW_ARTIFACT_URI'] = 's3://2023aa05704-mlops-assignment/mlflow'  # S3 for artifacts
-
+os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key_id
+os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_access_key
+os.environ["AWS_DEFAULT_REGION"] = 'ap-south-1'
 
 # Load dataset
 data = pd.read_csv('data/housing.csv')

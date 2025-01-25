@@ -1,0 +1,15 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/0d71228ed58b4d2a8877a09769d11e89/artifacts
+end_time: 1737822284021
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 0d71228ed58b4d2a8877a09769d11e89
+run_name: dashing-roo-834
+run_uuid: 0d71228ed58b4d2a8877a09769d11e89
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737822280925
+status: 3
+tags: []
+user_id: agupta

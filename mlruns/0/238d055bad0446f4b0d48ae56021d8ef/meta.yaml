@@ -1,0 +1,16 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/238d055bad0446f4b0d48ae56021d8ef/artifacts
+deleted_time: 1737822307209
+end_time: 1737822148753
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: deleted
+run_id: 238d055bad0446f4b0d48ae56021d8ef
+run_name: efficient-bear-753
+run_uuid: 238d055bad0446f4b0d48ae56021d8ef
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737822146226
+status: 4
+tags: []
+user_id: agupta

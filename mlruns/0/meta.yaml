@@ -1,6 +1,6 @@
-artifact_location: s3://mlops-assignment/mlflow/0
-creation_time: 1737813481330
+artifact_location: s3://2023aa05704-mlops-assignment/mlflow/0
+creation_time: 1737821950983
 experiment_id: '0'
-last_update_time: 1737813481330
+last_update_time: 1737821950983
 lifecycle_stage: active
 name: Default
