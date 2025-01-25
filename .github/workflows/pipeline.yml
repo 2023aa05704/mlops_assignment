@@ -206,19 +206,19 @@ jobs:
           EOF
 
       - name: Cleanup EC2 instance and SSH key pair
-      if: always()  # Ensures this runs even if previous steps fail
-      run: |
-        # Check if EC2 instance exists and terminate it
-        if [ -n "${{ env.INSTANCE_ID }}" ]; then
-          echo "Terminating EC2 instance with ID: ${{ env.INSTANCE_ID }}"
-          aws ec2 terminate-instances --instance-ids ${{ env.INSTANCE_ID }}
-          aws ec2 wait instance-terminated --instance-ids ${{ env.INSTANCE_ID }}
-          echo "EC2 instance terminated."
-        else
-          echo "No EC2 instance found to terminate."
-        fi
+        if: always()  # Ensures this runs even if previous steps fail
+        run: |
+          # Check if EC2 instance exists and terminate it
+          if [ -n "${{ env.INSTANCE_ID }}" ]; then
+            echo "Terminating EC2 instance with ID: ${{ env.INSTANCE_ID }}"
+            aws ec2 terminate-instances --instance-ids ${{ env.INSTANCE_ID }}
+            aws ec2 wait instance-terminated --instance-ids ${{ env.INSTANCE_ID }}
+            echo "EC2 instance terminated."
+          else
+            echo "No EC2 instance found to terminate."
+          fi
 
-        # Delete the key pair
-        echo "Deleting SSH key pair mlops-ec2-key"
-        aws ec2 delete-key-pair --key-name mlops-ec2-key
-        echo "SSH key pair deleted."
+          # Delete the key pair
+          echo "Deleting SSH key pair mlops-ec2-key"
+          aws ec2 delete-key-pair --key-name mlops-ec2-key
+          echo "SSH key pair deleted."
