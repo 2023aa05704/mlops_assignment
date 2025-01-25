@@ -179,6 +179,7 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.AWS_EC2_PVT_KEY }}
         run: |
+          telnet ${{ env.PUBLIC_IP }}
           echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
           ssh -i private_key -o StrictHostKeyChecking=no  -o ConnectTimeout=10 ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           sudo yum update -y
@@ -195,16 +196,6 @@ jobs:
           docker run -d -p 5000:5000 my-mlops-app
           EOF
           echo "service running at port 5000 ..."
-
-      # - name: Build and Run Docker Image on EC2
-      #   run: |
-      #     scp -i ec2_key.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 Dockerfile ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
-      #     echo "dockerfile copied"
-      #     ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
-      #     cd /home/ec2-user/
-      #     docker build -t my-mlops-app .
-      #     docker run -d -p 5000:5000 my-mlops-app
-      #     EOF
 
       - name: Verify Application Response
         run: |
