@@ -245,7 +245,7 @@ jobs:
           ls -altrh
           # telnet ${{ env.PUBLIC_IP }}
           echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
-          ssh -i mlops-ec2-key -o StrictHostKeyChecking=no  -o ConnectTimeout=10 ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+          ssh -vvvv -i mlops-ec2-key -o StrictHostKeyChecking=no  -o ConnectTimeout=10 ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           sudo yum update -y
           sudo yum install docker -y
           sudo service docker start
@@ -294,7 +294,7 @@ jobs:
 
           # Delete the security group
           SECURITY_GROUP_ID=$(aws ec2 describe-security-groups \
-            --filters "Name=group-name,Values=my-security-group" \
+            --filters "Name=group-name,Values=mlops-security-group" \
             --query "SecurityGroups[0].GroupId" \
             --output text 2>/dev/null || echo "None")
 
