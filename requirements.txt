@@ -8,3 +8,4 @@ xgboost
 joblib
 boto3
 dvc
+dvc-s3
