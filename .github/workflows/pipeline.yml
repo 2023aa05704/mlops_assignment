@@ -171,7 +171,7 @@ jobs:
             --instance-type t2.micro \
             --key-name mlops-ec2-key \
             --security-group-ids ${{ secrets.EC2_SECURITY_GROUP_ID }} \
-            --subnet-id ${{ env.INSTANCE_ID }} \
+            --subnet-id ${{ env.SUBNET_ID }} \
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=mlops-ec2-instance}]' \
             --associate-public-ip-address \
             --query 'Instances[0].InstanceId' \
