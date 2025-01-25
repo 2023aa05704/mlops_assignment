@@ -60,12 +60,11 @@ jobs:
           echo "SSH private key generated at ~/.ssh/mlops-ec2-key"
           echo "SSH public key generated at ~/.ssh/mlops-ec2-key.pub"
 
-          # Base64 encode the private key to make it single-line
           PRIVATE_KEY=$(cat ~/.ssh/mlops-ec2-key)
-          echo "PRIVATE_KEY=$PRIVATE_KEY"
-          PRIVATE_KEY=$(cat ~/.ssh/mlops-ec2-key | base64)
-          echo "PRIVATE_KEY=$PRIVATE_KEY"
-          echo "PRIVATE_KEY=$PRIVATE_KEY" >> $GITHUB_ENV
+          # echo "PRIVATE_KEY=$PRIVATE_KEY"
+          # PRIVATE_KEY=$(cat ~/.ssh/mlops-ec2-key | base64)
+          # echo "PRIVATE_KEY=$PRIVATE_KEY"
+          # echo "PRIVATE_KEY=$PRIVATE_KEY" >> $GITHUB_ENV
 
           # Import the public key to AWS
           aws ec2 import-key-pair \
@@ -193,7 +192,8 @@ jobs:
 
       - name: SSH into EC2 and provision
         run: |
-          echo "${{ env.PRIVATE_KEY }}" | base64 --decode > ~/.ssh/mlops-ec2-key
+          # echo "${{ env.PRIVATE_KEY }}" | base64 --decode > ~/.ssh/mlops-ec2-key
+          echo "PRIVATE_KEY=$PRIVATE_KEY"
           chmod 400 ~/.ssh/mlops-ec2-key
           ssh -i ~/.ssh/mlops-ec2-key -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           sudo yum update -y
