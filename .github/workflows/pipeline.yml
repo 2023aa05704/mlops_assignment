@@ -117,16 +117,8 @@ jobs:
           echo "SUBNET_ID=$SUBNET_ID" >> $GITHUB_ENV
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
 
-          echo "SUBNET_ID=$SUBNET_ID"
-          echo "VPC_ID=$VPC_ID"
-
-          echo "SUBNET_ID=${{ env.SUBNET_ID }}"
-          echo "VPC_ID=${{ env.VPC_ID }}"
-
       - name: Configure Security Group
         run: |
-          printenv
-
           # Get the security group ID
           SECURITY_GROUP_ID=$(aws ec2 describe-security-groups \
             --filters "Name=group-name,Values=mlops-security-group" \
@@ -184,11 +176,8 @@ jobs:
           echo "$PRIVATE_KEY" > mlops-ec2-key && chmod 400 mlops-ec2-key
           echo "$PUBLIC_KEY" > mlops-ec2-key.pub && chmod 700 mlops-ec2-key.pub
 
-          ls -altrh
-
           # Import the public key to AWS
           PUBLIC_KEY_MATERIAL=$(cat mlops-ec2-key.pub | base64)
-          echo "PUBLIC_KEY_MATERIAL = $PUBLIC_KEY_MATERIAL"
 
           aws ec2 import-key-pair \
             --key-name mlops-ec2-key \
@@ -245,8 +234,7 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.AWS_EC2_PVT_KEY }}
         run: |
-          ls -altrh
-          # telnet ${{ env.PUBLIC_IP }}
+
           echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
           ssh -i mlops-ec2-key -o StrictHostKeyChecking=no  -o ConnectTimeout=10 ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           sudo yum update -y
@@ -268,13 +256,14 @@ jobs:
 
       - name: Verify Application Response
         run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://${{ env.PUBLIC_IP }}:5000/predict -H "Content-Type: application/json" -d'{"area": 2000, "bedrooms": 3, "bathrooms": 2, "stories": 2, "parking": 1}')
+          RESPONSE=$(curl -X POST http://${{ env.PUBLIC_IP }}:5000/predict -H "Content-Type: application/json" -d'{"area": 2000, "bedrooms": 3, "bathrooms": 2, "stories": 2, "parking": 1}')
           echo "Response code: $RESPONSE"
           if [ "$RESPONSE" -eq 200 ]; then
             echo "Application is running successfully!"
             echo "$RESPONSE"
           else
             echo "Application did not start successfully or is not reachable!"
+            echo "$RESPONSE"
             exit 1
           fi
 
