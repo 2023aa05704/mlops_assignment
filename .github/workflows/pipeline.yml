@@ -52,11 +52,13 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
+
       - name: Check if Key Pair Exists
         id: check-key
         run: |
           EXISTING_KEY=$(aws ec2 describe-key-pairs --key-name mlops-ec2-key --query 'KeyPairs[0].KeyName' --output text 2>/dev/null || echo "NOT_FOUND")
           echo "EXISTING_KEY=$EXISTING_KEY" >> $GITHUB_ENV
+          echo "Existing key = $EXISTING_KEY"
 
       - name: Generate SSH Key Pair if Not Found
         if: env.EXISTING_KEY == 'NOT_FOUND'
