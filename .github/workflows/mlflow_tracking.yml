@@ -49,5 +49,5 @@ jobs:
 
     - name: Run MLflow Experiment
       run: |
-        python mlflow_exp.py
+        python src/mlflow_exp.py
 
