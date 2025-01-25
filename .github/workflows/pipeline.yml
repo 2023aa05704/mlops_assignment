@@ -102,13 +102,13 @@ jobs:
           INSTANCE_ID=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=mlops-ec2-instance" "Name=instance-state-name,Values=running" \
             --query "Reservations[0].Instances[0].InstanceId" \
-            --output text 2>/dev/null || echo "NOT_FOUND")
+            --output text || echo "None")
 
           # Output the result and set it as an environment variable
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
           # Check if the instance was found
-          if [ "$INSTANCE_ID" == "NOT_FOUND" ]; then
+          if [ "$INSTANCE_ID" == "None" ]; then
             echo "No running EC2 instance found. Proceeding to create a new one..."
           else
             echo "Found existing EC2 instance with ID: $INSTANCE_ID"
