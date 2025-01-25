@@ -214,6 +214,10 @@ jobs:
 
           echo "Created EC2 instance with ID: $INSTANCE_ID"
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+          echo "$(aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query "Reservations[0].Instances[0].SecurityGroups" \
+            --output json)"
 
       - name: Check if EC2 instance was created successfully
         run: |
