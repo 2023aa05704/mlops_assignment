@@ -257,6 +257,7 @@ jobs:
       - name: Cleanup EC2 instance, SG and SSH key pair
         if: always()  # Ensures this runs even if previous steps fail
         run: |
+          sleep 120
           # Check if EC2 instance exists and terminate it
           if [ -n "${{ env.INSTANCE_ID }}" ]; then
             echo "Terminating EC2 instance with ID: ${{ env.INSTANCE_ID }}"
