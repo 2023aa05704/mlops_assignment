@@ -61,6 +61,7 @@ jobs:
           echo "SSH public key generated at ~/.ssh/mlops-ec2-key.pub"
 
           # Base64 encode the private key to make it single-line
+          PRIVATE_KEY=$(cat ~/.ssh/mlops-ec2-key)
           echo "PRIVATE_KEY=$PRIVATE_KEY"
           PRIVATE_KEY=$(cat ~/.ssh/mlops-ec2-key | base64)
           echo "PRIVATE_KEY=$PRIVATE_KEY"
