@@ -79,6 +79,11 @@ jobs:
           # Set environment variable for private key with value from GitHub Secrets
           echo "PRIVATE_KEY=${{ secrets.EC2_PRIVATE_KEY }}" >> $GITHUB_ENV
 
+      - name: Decode SSH Private Key
+        run: |
+          echo "$EC2_PRIVATE_KEY" | base64 --decode > ~/.ssh/mlops-ec2-key
+          chmod 400 ~/.ssh/mlops-ec2-key
+
       - name: Get Latest Amazon Linux 2 AMI ID
         id: get-ami
         run: |
