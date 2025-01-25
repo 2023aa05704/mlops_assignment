@@ -250,13 +250,13 @@ jobs:
           ssh -i mlops-ec2-key -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           cd /home/ec2-user/
           docker build -t my-mlops-app .
-          docker run -d -p 5000:5000 my-mlops-app
+          docker run -d -p 80:5000 my-mlops-app
           EOF
-          echo "service running at port 5000 ..."
+          echo "service running at port 80 ..."
 
       - name: Verify Application Response
         run: |
-          RESPONSE=$(curl -X POST http://${{ env.PUBLIC_IP }}:5000/predict -H "Content-Type: application/json" -d'{"area": 2000, "bedrooms": 3, "bathrooms": 2, "stories": 2, "parking": 1}')
+          RESPONSE=$(curl -s -i -X POST http://${{ env.PUBLIC_IP }}:5000/predict -H "Content-Type: application/json" -d'{"area": 2000, "bedrooms": 3, "bathrooms": 2, "stories": 2, "parking": 1}')
           echo "Response code: $RESPONSE"
           if [ "$RESPONSE" -eq 200 ]; then
             echo "Application is running successfully!"
