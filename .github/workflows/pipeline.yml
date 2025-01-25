@@ -191,12 +191,11 @@ jobs:
           echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
 
       - name: SSH into EC2 and provision
+        env:
+          EC2_PRIVATE_KEY: ${{ secrets.AWS_EC2_PVT_KEY }}
         run: |
-          echo ${{ secrets.AWS_EC2_PVT_KEY }}
-          echo ${{ secrets.AWS_EC2_PVT_KEY }} > ~/.ssh/mlops-ec2-key
-          chmod 400 ~/.ssh/mlops-ec2-key
-          echo "$(cat  ~/.ssh/mlops-ec2-key)"
-          ssh -i ~/.ssh/mlops-ec2-key -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+
+          ssh -i "$EC2_PRIVATE_KEY" -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           sudo yum update -y
           sudo yum install docker -y
           sudo service docker start
