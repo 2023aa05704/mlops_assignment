@@ -115,6 +115,9 @@ jobs:
           echo "SUBNET_ID=$SUBNET_ID" >> $GITHUB_ENV
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
 
+          echo "SUBNET_ID=${{ env.SUBNET_ID }}"
+          echo "VPC_ID=${{ env.VPC_ID }}"
+
       - name: Configure Security Group
         run: |
           # Get the security group ID
