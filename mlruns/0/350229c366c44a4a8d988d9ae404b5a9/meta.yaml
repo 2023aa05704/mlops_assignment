@@ -1,0 +1,15 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/350229c366c44a4a8d988d9ae404b5a9/artifacts
+end_time: 1737822999965
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 350229c366c44a4a8d988d9ae404b5a9
+run_name: fun-horse-625
+run_uuid: 350229c366c44a4a8d988d9ae404b5a9
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737822997247
+status: 3
+tags: []
+user_id: agupta

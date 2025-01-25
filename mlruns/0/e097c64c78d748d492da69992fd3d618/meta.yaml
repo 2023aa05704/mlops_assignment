@@ -1,0 +1,15 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/e097c64c78d748d492da69992fd3d618/artifacts
+end_time: 1737823000528
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: e097c64c78d748d492da69992fd3d618
+run_name: sassy-slug-863
+run_uuid: e097c64c78d748d492da69992fd3d618
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737822999969
+status: 3
+tags: []
+user_id: agupta

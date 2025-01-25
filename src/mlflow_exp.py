@@ -11,16 +11,20 @@ import boto3
 import os
 import configparser
 
-# Path to your config file
-CONFIG_FILE_PATH = ".aws/aws_config.ini"
+# Check if AWS credentials are set via environment variables
+aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
+aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
 
-# Read the config file
-config = configparser.ConfigParser()
-config.read(CONFIG_FILE_PATH)
+# If the environment variables aren't set, fall back to reading from a config file
+if not aws_access_key_id or not aws_secret_access_key:
 
-# Fetch values from the "aws" section
-aws_access_key_id = config.get("aws", "AWS_ACCESS_KEY_ID")
-aws_secret_access_key = config.get("aws", "AWS_SECRET_ACCESS_KEY")
+    CONFIG_FILE_PATH = ".aws/aws_config.ini"
+    config = configparser.ConfigParser()
+    config.read(CONFIG_FILE_PATH)
+
+    # Fetch values from the "aws" section
+    aws_access_key_id = config.get("aws", "AWS_ACCESS_KEY_ID")
+    aws_secret_access_key = config.get("aws", "AWS_SECRET_ACCESS_KEY")
 
 os.environ['MLFLOW_ARTIFACT_URI'] = 's3://2023aa05704-mlops-assignment/mlflow'  # S3 for artifacts
 os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key_id

@@ -1,0 +1,15 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/f25bd161653342ea9714caa4552b85da/artifacts
+end_time: 1737823003514
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f25bd161653342ea9714caa4552b85da
+run_name: wistful-mare-239
+run_uuid: f25bd161653342ea9714caa4552b85da
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737823002640
+status: 3
+tags: []
+user_id: agupta
