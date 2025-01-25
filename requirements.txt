@@ -3,3 +3,7 @@ scikit-learn
 scipy
 pytest
 Flask
+mlflow
+xgboost
+joblib
+boto3
