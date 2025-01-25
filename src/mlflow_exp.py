@@ -64,7 +64,7 @@ for model_name, model_class, params in models:
         mlflow.log_metric("RMSE", rmse)
 
         # Log the model as an artifact
-        model_filename = f"{model_name}_model.joblib"
+        model_filename = f"model/{model_name}_model.joblib"
         joblib.dump(model, model_filename)
         mlflow.log_artifact(model_filename)
 
