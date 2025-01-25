@@ -193,8 +193,9 @@ jobs:
       - name: SSH into EC2 and provision
         run: |
           # echo "${{ env.PRIVATE_KEY }}" | base64 --decode > ~/.ssh/mlops-ec2-key
-          echo "PRIVATE_KEY=$PRIVATE_KEY"
+          echo ${{ secrets.AWS_EC2_PVT_KEY }} >> ~/.ssh/mlops-ec2-key
           chmod 400 ~/.ssh/mlops-ec2-key
+          echo "$(cat  ~/.ssh/mlops-ec2-key)"
           ssh -i ~/.ssh/mlops-ec2-key -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           sudo yum update -y
           sudo yum install docker -y
