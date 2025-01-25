@@ -127,18 +127,19 @@ jobs:
             echo "No existing subnet found. Creating a new subnet..."
 
             # Create a new subnet (replace with correct VPC ID and CIDR block)
-            VPC_ID=$(aws ec2 describe-vpcs \
-              --query "Vpcs[0].VpcId" \
-              --output text)  # This assumes you're using the default VPC
+            # VPC_ID=$(aws ec2 describe-vpcs \
+            #   --query "Vpcs[0].VpcId" \
+            #   --output text)  # This assumes you're using the default VPC
+            # echo "Found existing VPC with ID: $VPC_ID"
 
             # Check if VPC_ID is valid
-            if [ "$VPC_ID" == "None" ]; then
-              echo "No VPC found. Creating a default VPC..."
-              VPC_ID=$(aws ec2 create-vpc \
-                --cidr-block 10.0.0.0/16 \
-                --query "Vpc.VpcId" \
-                --output text)
-            fi
+            # if [ "$VPC_ID" == "None" ]; then
+            # echo "No VPC found. Creating a default VPC..."
+            VPC_ID=$(aws ec2 create-vpc \
+              --cidr-block 10.0.0.0/16 \
+              --query "Vpc.VpcId" \
+              --output text)
+            # fi
 
             # Create subnet in the default VPC or specified VPC
             SUBNET_ID=$(aws ec2 create-subnet \
