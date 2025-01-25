@@ -82,7 +82,7 @@ jobs:
       - name: Decode SSH Private Key
         run: |
           mkdir -p ~/.ssh  # Ensure the directory exists
-          chmod 700 ~/.ssh  # Set permission for the .ssh directory
+          chmod -R 700 ~/.ssh  # Set permission for the .ssh directory
           echo "$EC2_PRIVATE_KEY" | base64 --decode > ~/.ssh/mlops-ec2-key
           chmod 400 ~/.ssh/mlops-ec2-key  # Ensure proper permissions on the private key
 
