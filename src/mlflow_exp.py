@@ -8,6 +8,10 @@ from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import sklearn
 import boto3
+import os
+
+os.environ['MLFLOW_ARTIFACT_URI'] = 's3://2023aa05704-mlops-assignment/mlflow'  # S3 for artifacts
+
 
 # Load dataset
 data = pd.read_csv('data/housing.csv')
@@ -64,7 +68,7 @@ for model_name, model_class, params in models:
         mlflow.log_metric("RMSE", rmse)
 
         # Log the model as an artifact
-        model_filename = f"model/{model_name}_model.joblib"
+        model_filename = f"{model_name}_model.joblib"
         joblib.dump(model, model_filename)
         mlflow.log_artifact(model_filename)
 
