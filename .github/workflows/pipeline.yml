@@ -204,12 +204,30 @@ jobs:
 
       - name: Build and Run Docker Image on EC2
         run: |
+          PRIVATE_KEY=$(cat ~/.ssh/mlops-ec2-key)
+          echo "PRIVATE_KEY=$PRIVATE_KEY"
           scp -i ~/.ssh/mlops-ec2-key -o StrictHostKeyChecking=no Dockerfile ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
+          echo "dockerfile copied"
           ssh -i ~/.ssh/mlops-ec2-key -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           cd /home/ec2-user/
           docker build -t my-mlops-app .
           docker run -d -p 5000:5000 my-mlops-app
           EOF
+
+      - name: Verify Application Response
+        run: |
+          echo "Waiting for the application to be ready..."
+          sleep 10  # Give the application time to start
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://${{ env.PUBLIC_IP }}:5000/predict -H "Content-Type: application/json" -d'{"area": 2000, "bedrooms": 3, "bathrooms": 2, "stories": 2, "parking": 1}')
+          echo "Response code: $RESPONSE"
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "Application is running successfully!"
+            echo "$RESPONSE"
+          else
+            echo "Application did not start successfully or is not reachable!"
+            exit 1
+          fi
+
 
       - name: Cleanup EC2 instance and SSH key pair
         if: always()  # Ensures this runs even if previous steps fail
