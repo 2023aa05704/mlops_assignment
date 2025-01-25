@@ -158,7 +158,7 @@ jobs:
           # Import the public key to AWS
           aws ec2 import-key-pair \
             --key-name mlops-ec2-key \
-            --public-key-material fileb://~/.ssh/mlops-ec2-key.pub
+            --public-key-material mlops-ec2-key.pub
 
           INSTANCE_ID=$(aws ec2 run-instances \
             --image-id ${{ env.AMI_ID }} \
