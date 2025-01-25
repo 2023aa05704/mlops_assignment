@@ -234,7 +234,7 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.AWS_EC2_PVT_KEY }}
         run: |
-
+          sleep 10
           echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
           ssh -i mlops-ec2-key -o StrictHostKeyChecking=no  -o ConnectTimeout=10 ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           sudo yum update -y
@@ -253,11 +253,12 @@ jobs:
           docker run -d -p 5000:5000 my-mlops-app
           EOF
           echo "service running at port 5000 ..."
+          echo "$(curl -i -X POST http://127.0.0.1:5000/predict -H "Content-Type: application/json" -d'{"area": 2000, "bedrooms": 3, "bathrooms": 2, "stories": 2, "parking": 1}')"
 
       - name: Cleanup EC2 instance, SG and SSH key pair
         if: always()  # Ensures this runs even if previous steps fail
         run: |
-          sleep 120
+          sleep 10
           # Check if EC2 instance exists and terminate it
           if [ -n "${{ env.INSTANCE_ID }}" ]; then
             echo "Terminating EC2 instance with ID: ${{ env.INSTANCE_ID }}"
