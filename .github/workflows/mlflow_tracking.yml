@@ -33,7 +33,7 @@ jobs:
 
     - name: Ensure S3 bucket exists
       run: |
-        BUCKET_NAME="mlops-assignment"
+        BUCKET_NAME="2023aa05704-mlops-assignment"
         REGION="ap-south-1"  # Change this to your desired region
 
         # Check if the bucket exists
