@@ -116,7 +116,7 @@ jobs:
 
 
       - name: Create EC2 instance if not found
-        if: env.INSTANCE_ID == 'NOT_FOUND'
+        if: env.INSTANCE_ID == 'None'
         run: |
           echo "No existing EC2 instance found. Creating a new one..."
           INSTANCE_ID=$(aws ec2 run-instances \
