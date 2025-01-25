@@ -125,6 +125,8 @@ jobs:
 
       - name: Configure Security Group
         run: |
+          printenv
+
           # Get the security group ID
           SECURITY_GROUP_ID=$(aws ec2 describe-security-groups \
             --filters "Name=group-name,Values=mlops-security-group" \
@@ -272,7 +274,7 @@ jobs:
           fi
 
 
-      - name: Cleanup EC2 instance and SSH key pair
+      - name: Cleanup EC2 instance, SG and SSH key pair
         if: always()  # Ensures this runs even if previous steps fail
         run: |
           # Check if EC2 instance exists and terminate it
@@ -289,3 +291,17 @@ jobs:
           echo "Deleting SSH key pair mlops-ec2-key"
           aws ec2 delete-key-pair --key-name mlops-ec2-key
           echo "SSH key pair deleted."
+
+          # Delete the security group
+          SECURITY_GROUP_ID=$(aws ec2 describe-security-groups \
+            --filters "Name=group-name,Values=my-security-group" \
+            --query "SecurityGroups[0].GroupId" \
+            --output text 2>/dev/null || echo "None")
+
+          if [ "$SECURITY_GROUP_ID" != "None" ]; then
+            echo "Deleting security group with ID: $SECURITY_GROUP_ID"
+            aws ec2 delete-security-group --group-id $SECURITY_GROUP_ID
+            echo "Security group deleted."
+          else
+            echo "No security group found to delete."
+          fi
