@@ -1,0 +1,7 @@
+[2025-01-25 13:10:29,986] INFO in app: Model loaded successfully.
+[2025-01-25 13:10:29,987] INFO in app: Starting Flask application.
+[2025-01-25 13:10:32,518] INFO in app: Model loaded successfully.
+[2025-01-25 13:10:32,519] INFO in app: Starting Flask application.
+[2025-01-25 13:10:57,909] INFO in app: Received prediction request.
+[2025-01-25 13:10:57,910] DEBUG in app: Input data: {'area': 2000, 'bedrooms': 3, 'bathrooms': 2, 'stories': 2, 'parking': 1}
+[2025-01-25 13:10:57,930] INFO in app: Prediction successful.

@@ -1,0 +1,152 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - m1
+  pull_request:
+    branches:
+      - m1
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Run flake8
+        run: |
+          pip install flake8
+          flake8 src/train.py
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint  # This ensures 'test' runs after 'lint'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Run tests
+        run: |
+          pytest tests/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test  # This ensures 'deploy' runs after 'test'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+      - name: Check if Key Pair Exists
+        id: check-key
+        run: |
+          EXISTING_KEY=$(aws ec2 describe-key-pairs --key-name mlops-ec2-key --query 'KeyPairs[0].KeyName' --output text 2>/dev/null || echo "NOT_FOUND")
+          echo "EXISTING_KEY=$EXISTING_KEY" >> $GITHUB_ENV
+
+      - name: Generate SSH Key Pair if Not Found
+        if: env.EXISTING_KEY == 'NOT_FOUND'
+        run: |
+          echo "Key pair not found. Generating a new SSH key pair..."
+          ssh-keygen -t rsa -b 2048 -f ~/.ssh/mlops-ec2-key -N ""
+          echo "SSH private key generated at ~/.ssh/mlops-ec2-key"
+          echo "SSH public key generated at ~/.ssh/mlops-ec2-key.pub"
+          echo "PRIVATE_KEY=$(cat ~/.ssh/mlops-ec2-key)" >> $GITHUB_ENV
+          aws ec2 import-key-pair \
+            --key-name mlops-ec2-key \
+            --public-key-material fileb://~/.ssh/mlops-ec2-key.pub
+        env:
+          PRIVATE_KEY_PATH: ~/.ssh/mlops-ec2-key
+
+      - name: Use Existing Key Pair
+        if: env.EXISTING_KEY != 'NOT_FOUND'
+        run: |
+          echo "Key pair mlops-ec2-key already exists. Skipping creation."
+          # Set environment variable for private key with value from GitHub Secrets
+          echo "PRIVATE_KEY=${{ secrets.EC2_PRIVATE_KEY }}" >> $GITHUB_ENV
+
+      - name: Get Latest Amazon Linux 2 AMI ID
+        id: get-ami
+        run: |
+          AMI_ID=$(aws ec2 describe-images \
+            --filters "Name=name,Values=amzn2-ami-hvm-*-x86_64-gp2" \
+                     "Name=state,Values=available" \
+            --query "Images | sort_by(@, &CreationDate) | [-1].ImageId" \
+            --output text)
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+
+      - name: Check if EC2 instance exists
+        id: ec2-check
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=mlops-ec2-instance" "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].InstanceId" \
+            --output text 2>/dev/null || echo "NOT_FOUND")
+
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+
+      - name: Create EC2 instance if not found
+        if: env.INSTANCE_ID == 'NOT_FOUND'
+        run: |
+          echo "No existing EC2 instance found. Creating a new one..."
+          INSTANCE_ID=$(aws ec2 run-instances \
+            --image-id ${{ env.AMI_ID }} \
+            --instance-type t2.micro \
+            --key-name mlops-ec2-key \
+            --security-group-ids ${{ secrets.EC2_SECURITY_GROUP_ID }} \
+            --subnet-id ${{ secrets.EC2_SUBNET_ID }} \
+            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=mlops-ec2-instance}]' \
+            --associate-public-ip-address \
+            --query 'Instances[0].InstanceId' \
+            --output text)
+
+          echo "New EC2 instance created with ID: $INSTANCE_ID"
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+
+      - name: Wait for EC2 instance to be running
+        run: |
+          aws ec2 wait instance-running --instance-ids ${{ env.INSTANCE_ID }}
+          echo "EC2 instance is now running."
+
+      - name: Retrieve EC2 Public IP
+        id: ec2-ip
+        run: |
+          PUBLIC_IP=$(aws ec2 describe-instances \
+            --instance-ids ${{ env.INSTANCE_ID }} \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' \
+            --output text)
+          echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+
+      - name: SSH into EC2 and provision
+        run: |
+          echo "${{ env.PRIVATE_KEY }}" > ~/.ssh/mlops-ec2-key
+          chmod 400 ~/.ssh/mlops-ec2-key
+          ssh -i ~/.ssh/mlops-ec2-key -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+          sudo yum update -y
+          sudo yum install docker -y
+          sudo service docker start
+          sudo usermod -aG docker ec2-user
+          EOF
+
+      - name: Build and Run Docker Image on EC2
+        run: |
+          scp -i ~/.ssh/mlops-ec2-key -o StrictHostKeyChecking=no Dockerfile ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
+          ssh -i ~/.ssh/mlops-ec2-key -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+          cd /home/ec2-user/
+          docker build -t my-mlops-app .
+          docker run -d -p 5000:5000 my-mlops-app
+          EOF
