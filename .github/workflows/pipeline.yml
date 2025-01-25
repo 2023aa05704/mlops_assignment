@@ -148,7 +148,18 @@ jobs:
           echo "SUBNET_ID=$SUBNET_ID" >> $GITHUB_ENV
 
       - name: Create EC2 instance
+        env:
+          PRIVATE_KEY: ${{ secrets.AWS_EC2_PVT_KEY }}
+          PUBLIC_KEY: ${{ secrets.AWS_EC2_PUB_KEY }}
         run: |
+          echo "$PRIVATE_KEY" > mlops-ec2-key && chmod 600 mlops-ec2-key
+          echo "$PUBLIC_KEY" > mlops-ec2-key.pub && chmod 700 mlops-ec2-key.pub
+
+          # Import the public key to AWS
+          aws ec2 import-key-pair \
+            --key-name mlops-ec2-key \
+            --public-key-material fileb://~/.ssh/mlops-ec2-key.pub
+
           INSTANCE_ID=$(aws ec2 run-instances \
             --image-id ${{ env.AMI_ID }} \
             --instance-type t2.micro \
@@ -159,6 +170,7 @@ jobs:
             --associate-public-ip-address \
             --query 'Instances[0].InstanceId' \
             --output text)
+
           echo "Created EC2 instance with ID: $INSTANCE_ID"
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
@@ -202,9 +214,9 @@ jobs:
           sudo usermod -aG docker ec2-user
           EOF
           echo "docker installed ..."
-          scp -i ec2_key.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 Dockerfile ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
+          scp -i private_key -o StrictHostKeyChecking=no -o ConnectTimeout=10 Dockerfile ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
           echo "dockerfile copied .."
-          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+          ssh -i private_key -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           cd /home/ec2-user/
           docker build -t my-mlops-app .
           docker run -d -p 5000:5000 my-mlops-app
@@ -223,8 +235,6 @@ jobs:
 
       - name: Verify Application Response
         run: |
-          echo "Waiting for the application to be ready..."
-          sleep 10  # Give the application time to start
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://${{ env.PUBLIC_IP }}:5000/predict -H "Content-Type: application/json" -d'{"area": 2000, "bedrooms": 3, "bathrooms": 2, "stories": 2, "parking": 1}')
           echo "Response code: $RESPONSE"
           if [ "$RESPONSE" -eq 200 ]; then
