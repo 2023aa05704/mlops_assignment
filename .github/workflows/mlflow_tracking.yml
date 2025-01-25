@@ -45,7 +45,7 @@ jobs:
         fi
 
     - name: Set MLflow Tracking URI
-      run: echo "MLFLOW_TRACKING_URI=s3://mlops-assignment/mlflow" >> $GITHUB_ENV
+      run: echo "MLFLOW_ARTIFACT_URI=s3://mlops-assignment/mlflow" >> $GITHUB_ENV
 
     - name: Run MLflow Experiment
       run: |
