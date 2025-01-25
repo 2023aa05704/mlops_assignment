@@ -7,3 +7,4 @@ mlflow
 xgboost
 joblib
 boto3
+dvc
