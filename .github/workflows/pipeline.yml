@@ -53,15 +53,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
-      - name: Check if Key Pair Exists
-        id: check-key
-        run: |
-          EXISTING_KEY=$(aws ec2 describe-key-pairs --key-name mlops-ec2-key --query 'KeyPairs[0].KeyName' --output text 2>/dev/null || echo "NOT_FOUND")
-          echo "EXISTING_KEY=$EXISTING_KEY" >> $GITHUB_ENV
-          echo "Existing key = $EXISTING_KEY"
-
-      - name: Generate SSH Key Pair if Not Found
-        if: env.EXISTING_KEY == 'NOT_FOUND'
+      - name: Generate SSH Key Pair
         run: |
           echo "Key pair not found. Generating a new SSH key pair..."
           ssh-keygen -t rsa -b 2048 -f ~/.ssh/mlops-ec2-key -N ""
@@ -74,21 +66,6 @@ jobs:
         env:
           PRIVATE_KEY_PATH: ~/.ssh/mlops-ec2-key
 
-      - name: Use Existing Key Pair
-        if: env.EXISTING_KEY != 'NOT_FOUND'
-        run: |
-          echo "Retrieving EC2 private key from SSM..."
-          EC2_PRIVATE_KEY=$(aws ssm get-parameter --name "mlops-ec2-key" --with-decryption --query "Parameter.Value" --output text)
-          echo "PRIVATE_KEY=$EC2_PRIVATE_KEY" >> $GITHUB_ENV
-
-      - name: Decode SSH Private Key
-        run: |
-          mkdir -p ~/.ssh  # Ensure the directory exists
-          chmod -R 700 ~/.ssh  # Set permission for the .ssh directory
-          echo "$EC2_PRIVATE_KEY" | base64 --decode > ~/.ssh/mlops-ec2-key
-          chmod 400 ~/.ssh/mlops-ec2-key  # Ensure proper permissions on the private key
-
-
       - name: Get Latest Amazon Linux 2 AMI ID
         id: get-ami
         run: |
@@ -99,23 +76,23 @@ jobs:
             --output text)
           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
-      - name: Check if EC2 instance exists
-        run: |
-          # Attempt to get the existing EC2 instance ID
-          INSTANCE_ID=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=mlops-ec2-instance" "Name=instance-state-name,Values=running" \
-            --query "Reservations[0].Instances[0].InstanceId" \
-            --output text || echo "None")
+      # - name: Check if EC2 instance exists
+      #   run: |
+      #     # Attempt to get the existing EC2 instance ID
+      #     INSTANCE_ID=$(aws ec2 describe-instances \
+      #       --filters "Name=tag:Name,Values=mlops-ec2-instance" "Name=instance-state-name,Values=running" \
+      #       --query "Reservations[0].Instances[0].InstanceId" \
+      #       --output text || echo "None")
 
-          # Output the result and set it as an environment variable
-          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+      #     # Output the result and set it as an environment variable
+      #     echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
-          # Check if the instance was found
-          if [ "$INSTANCE_ID" == "None" ]; then
-            echo "No running EC2 instance found. Proceeding to create a new one..."
-          else
-            echo "Found existing EC2 instance with ID: $INSTANCE_ID"
-          fi
+      #     # Check if the instance was found
+      #     if [ "$INSTANCE_ID" == "None" ]; then
+      #       echo "No running EC2 instance found. Proceeding to create a new one..."
+      #     else
+      #       echo "Found existing EC2 instance with ID: $INSTANCE_ID"
+      #     fi
 
       - name: Get or create subnet
         run: |
@@ -165,10 +142,8 @@ jobs:
           # Set the subnet ID as an environment variable for use in future steps
           echo "SUBNET_ID=$SUBNET_ID" >> $GITHUB_ENV
 
-      - name: Create EC2 instance if not found
-        if: env.INSTANCE_ID == 'None'
+      - name: Create EC2 instance
         run: |
-          echo "No existing EC2 instance found. Creating a new one..."
           INSTANCE_ID=$(aws ec2 run-instances \
             --image-id ${{ env.AMI_ID }} \
             --instance-type t2.micro \
