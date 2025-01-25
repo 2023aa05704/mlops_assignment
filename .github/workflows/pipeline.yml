@@ -115,6 +115,9 @@ jobs:
           echo "SUBNET_ID=$SUBNET_ID" >> $GITHUB_ENV
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
 
+          echo "SUBNET_ID=$SUBNET_ID"
+          echo "VPC_ID=$VPC_ID"
+
           echo "SUBNET_ID=${{ env.SUBNET_ID }}"
           echo "VPC_ID=${{ env.VPC_ID }}"
 
