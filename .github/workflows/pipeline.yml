@@ -113,6 +113,7 @@ jobs:
 
           # Set the subnet ID as an environment variable for use in future steps
           echo "SUBNET_ID=$SUBNET_ID" >> $GITHUB_ENV
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
 
       - name: Configure Security Group
         run: |
@@ -128,7 +129,7 @@ jobs:
             SECURITY_GROUP_ID=$(aws ec2 create-security-group \
               --group-name mlops-security-group \
               --description "Security group for MLOps pipeline" \
-              --vpc-id $VPC_ID \
+              --vpc-id ${{ env.VPC_ID }} \
               --query "GroupId" \
               --output text)
 
