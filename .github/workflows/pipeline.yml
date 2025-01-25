@@ -77,9 +77,9 @@ jobs:
       - name: Use Existing Key Pair
         if: env.EXISTING_KEY != 'NOT_FOUND'
         run: |
-          echo "Key pair mlops-ec2-key already exists. Skipping creation."
-          # Set environment variable for private key with value from GitHub Secrets
-          echo "PRIVATE_KEY=${{ secrets.EC2_PRIVATE_KEY }}" >> $GITHUB_ENV
+          echo "Retrieving EC2 private key from SSM..."
+          EC2_PRIVATE_KEY=$(aws ssm get-parameter --name "mlops-ec2-key" --with-decryption --query "Parameter.Value" --output text)
+          echo "PRIVATE_KEY=$EC2_PRIVATE_KEY" >> $GITHUB_ENV
 
       - name: Decode SSH Private Key
         run: |
