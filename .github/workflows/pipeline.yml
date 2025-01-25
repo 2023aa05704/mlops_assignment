@@ -169,11 +169,11 @@ jobs:
               --cidr 0.0.0.0/0
 
             # Allow all outbound traffic
-            aws ec2 authorize-security-group-egress \
-              --group-id $SECURITY_GROUP_ID \
-              --protocol -1 \
-              --port -1 \
-              --cidr 0.0.0.0/0
+            # aws ec2 authorize-security-group-egress \
+            #   --group-id $SECURITY_GROUP_ID \
+            #   --protocol -1 \
+            #   --port -1 \
+            #   --cidr 0.0.0.0/0
 
             echo "Created and configured new security group with ID: $SECURITY_GROUP_ID"
           else
