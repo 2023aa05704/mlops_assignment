@@ -66,6 +66,59 @@ jobs:
             --output text)
           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
+      - name: Configure Security Group
+        run: |
+          # Get the security group ID
+          SECURITY_GROUP_ID=$(aws ec2 describe-security-groups \
+            --filters "Name=group-name,Values=mlops-security-group" \
+            --query "SecurityGroups[0].GroupId" \
+            --output text || echo "None")
+
+          # If no security group exists, create one
+          if [ "$SECURITY_GROUP_ID" == "None" ]; then
+            echo "No existing security group found. Creating a new security group..."
+            SECURITY_GROUP_ID=$(aws ec2 create-security-group \
+              --group-name mlops-security-group \
+              --description "Security group for MLOps pipeline" \
+              --vpc-id $VPC_ID \
+              --query "GroupId" \
+              --output text)
+
+            # Allow inbound traffic on ports 22, 80, and 443
+            aws ec2 authorize-security-group-ingress \
+              --group-id $SECURITY_GROUP_ID \
+              --protocol tcp \
+              --port 22 \
+              --cidr 0.0.0.0/0
+
+            aws ec2 authorize-security-group-ingress \
+              --group-id $SECURITY_GROUP_ID \
+              --protocol tcp \
+              --port 80 \
+              --cidr 0.0.0.0/0
+
+            aws ec2 authorize-security-group-ingress \
+              --group-id $SECURITY_GROUP_ID \
+              --protocol tcp \
+              --port 443 \
+              --cidr 0.0.0.0/0
+
+            # Allow all outbound traffic
+            aws ec2 authorize-security-group-egress \
+              --group-id $SECURITY_GROUP_ID \
+              --protocol -1 \
+              --port -1 \
+              --cidr 0.0.0.0/0
+
+            echo "Created and configured new security group with ID: $SECURITY_GROUP_ID"
+          else
+            echo "Found existing security group with ID: $SECURITY_GROUP_ID"
+          fi
+
+          # Set the security group ID as an environment variable
+          echo "SECURITY_GROUP_ID=$SECURITY_GROUP_ID" >> $GITHUB_ENV
+
+
       - name: Get or create subnet
         run: |
           # Try to get the subnet by tag name or region
@@ -136,7 +189,7 @@ jobs:
             --image-id ${{ env.AMI_ID }} \
             --instance-type t2.micro \
             --key-name mlops-ec2-key \
-            --security-group-ids ${{ secrets.EC2_SECURITY_GROUP_ID }} \
+            --security-group-ids ${{ env.SECURITY_GROUP_ID }} \
             --subnet-id ${{ env.SUBNET_ID }} \
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=mlops-ec2-instance}]' \
             --associate-public-ip-address \
@@ -179,18 +232,19 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.AWS_EC2_PVT_KEY }}
         run: |
-          telnet ${{ env.PUBLIC_IP }}
+          ls -altrh
+          # telnet ${{ env.PUBLIC_IP }}
           echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
-          ssh -i private_key -o StrictHostKeyChecking=no  -o ConnectTimeout=10 ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+          ssh -i mlops-ec2-key -o StrictHostKeyChecking=no  -o ConnectTimeout=10 ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           sudo yum update -y
           sudo yum install docker -y
           sudo service docker start
           sudo usermod -aG docker ec2-user
           EOF
           echo "docker installed ..."
-          scp -i private_key -o StrictHostKeyChecking=no -o ConnectTimeout=10 Dockerfile ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
+          scp -i mlops-ec2-key -o StrictHostKeyChecking=no -o ConnectTimeout=10 Dockerfile ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
           echo "dockerfile copied .."
-          ssh -i private_key -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+          ssh -i mlops-ec2-key -o StrictHostKeyChecking=no ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           cd /home/ec2-user/
           docker build -t my-mlops-app .
           docker run -d -p 5000:5000 my-mlops-app
