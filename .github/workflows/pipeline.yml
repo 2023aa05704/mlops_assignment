@@ -155,10 +155,10 @@ jobs:
           echo "$PRIVATE_KEY" > mlops-ec2-key && chmod 600 mlops-ec2-key
           echo "$PUBLIC_KEY" > mlops-ec2-key.pub && chmod 700 mlops-ec2-key.pub
 
-          echo "$(cat mlops-ec2-key.pub)"
-
           # Import the public key to AWS
           PUBLIC_KEY_MATERIAL=$(cat mlops-ec2-key.pub | base64)
+          echo "PUBLIC_KEY_MATERIAL = $PUBLIC_KEY_MATERIAL"
+
           aws ec2 import-key-pair \
             --key-name mlops-ec2-key \
             --public-key-material "$PUBLIC_KEY_MATERIAL"
@@ -209,7 +209,7 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.AWS_EC2_PVT_KEY }}
         run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
           ssh -i private_key -o StrictHostKeyChecking=no  -o ConnectTimeout=10 ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
           sudo yum update -y
           sudo yum install docker -y
