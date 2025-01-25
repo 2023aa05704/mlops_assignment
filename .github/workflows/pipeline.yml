@@ -52,24 +52,9 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
+          aws-ec2-key: ${{ secrets.AWS_EC2_PVT_KEY }}
+          aws-ec2-pub: ${{ secrets.AWS_EC2_PUB_KEY }}
 
-      # - name: Generate SSH Key Pair
-      #   run: |
-      #     echo "Key pair not found. Generating a new SSH key pair..."
-      #     ssh-keygen -t rsa -b 2048 -f ~/.ssh/mlops-ec2-key -N ""
-      #     echo "SSH private key generated at ~/.ssh/mlops-ec2-key"
-      #     echo "SSH public key generated at ~/.ssh/mlops-ec2-key.pub"
-
-      #     PRIVATE_KEY=$(cat ~/.ssh/mlops-ec2-key)
-      #     # echo "PRIVATE_KEY=$PRIVATE_KEY"
-      #     # PRIVATE_KEY=$(cat ~/.ssh/mlops-ec2-key | base64)
-      #     # echo "PRIVATE_KEY=$PRIVATE_KEY"
-      #     # echo "PRIVATE_KEY=$PRIVATE_KEY" >> $GITHUB_ENV
-
-      #     # Import the public key to AWS
-      #     aws ec2 import-key-pair \
-      #       --key-name mlops-ec2-key \
-      #       --public-key-material fileb://~/.ssh/mlops-ec2-key.pub
 
       - name: Get Latest Amazon Linux 2 AMI ID
         id: get-ami
@@ -80,24 +65,6 @@ jobs:
             --query "Images | sort_by(@, &CreationDate) | [-1].ImageId" \
             --output text)
           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
-
-      # - name: Check if EC2 instance exists
-      #   run: |
-      #     # Attempt to get the existing EC2 instance ID
-      #     INSTANCE_ID=$(aws ec2 describe-instances \
-      #       --filters "Name=tag:Name,Values=mlops-ec2-instance" "Name=instance-state-name,Values=running" \
-      #       --query "Reservations[0].Instances[0].InstanceId" \
-      #       --output text || echo "None")
-
-      #     # Output the result and set it as an environment variable
-      #     echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
-
-      #     # Check if the instance was found
-      #     if [ "$INSTANCE_ID" == "None" ]; then
-      #       echo "No running EC2 instance found. Proceeding to create a new one..."
-      #     else
-      #       echo "Found existing EC2 instance with ID: $INSTANCE_ID"
-      #     fi
 
       - name: Get or create subnet
         run: |
@@ -152,8 +119,10 @@ jobs:
           PRIVATE_KEY: ${{ secrets.AWS_EC2_PVT_KEY }}
           PUBLIC_KEY: ${{ secrets.AWS_EC2_PUB_KEY }}
         run: |
-          echo "$PRIVATE_KEY" > mlops-ec2-key && chmod 600 mlops-ec2-key
+          echo "$PRIVATE_KEY" > mlops-ec2-key && chmod 400 mlops-ec2-key
           echo "$PUBLIC_KEY" > mlops-ec2-key.pub && chmod 700 mlops-ec2-key.pub
+
+          ls -altrh
 
           # Import the public key to AWS
           PUBLIC_KEY_MATERIAL=$(cat mlops-ec2-key.pub | base64)
@@ -204,6 +173,7 @@ jobs:
             --query 'Reservations[0].Instances[0].PublicIpAddress' \
             --output text)
           echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+          echo "PUBLIC_IP=$PUBLIC_IP"
 
       - name: SSH into EC2 and provision
         env:
