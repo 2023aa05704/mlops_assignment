@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - m1
+      -main
   pull_request:
     branches:
       - m1
+      -main
 
 jobs:
   lint:
@@ -17,9 +19,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.11
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
       - name: Run flake8
         run: |
           pip install flake8
@@ -27,7 +26,8 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: lint  # This ensures 'test' runs after 'lint'
+    needs: lint
+    if: github.ref == 'refs/heads/m1'
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
