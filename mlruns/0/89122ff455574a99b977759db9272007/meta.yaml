@@ -1,0 +1,15 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/89122ff455574a99b977759db9272007/artifacts
+end_time: 1737879092882
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 89122ff455574a99b977759db9272007
+run_name: enthused-roo-968
+run_uuid: 89122ff455574a99b977759db9272007
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737879089187
+status: 3
+tags: []
+user_id: agupta

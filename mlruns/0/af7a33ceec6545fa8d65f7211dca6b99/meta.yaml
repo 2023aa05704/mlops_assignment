@@ -1,0 +1,15 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/af7a33ceec6545fa8d65f7211dca6b99/artifacts
+end_time: 1737879097302
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: af7a33ceec6545fa8d65f7211dca6b99
+run_name: chill-ape-23
+run_uuid: af7a33ceec6545fa8d65f7211dca6b99
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737879094731
+status: 3
+tags: []
+user_id: agupta

@@ -1,0 +1,15 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/9bd62ca3f1e84fb995ea8f2b02f6f066/artifacts
+end_time: 1737879094727
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 9bd62ca3f1e84fb995ea8f2b02f6f066
+run_name: unique-ray-797
+run_uuid: 9bd62ca3f1e84fb995ea8f2b02f6f066
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737879092887
+status: 3
+tags: []
+user_id: agupta

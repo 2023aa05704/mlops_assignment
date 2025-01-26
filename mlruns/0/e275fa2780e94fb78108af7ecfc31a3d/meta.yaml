@@ -1,0 +1,15 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/e275fa2780e94fb78108af7ecfc31a3d/artifacts
+end_time: 1737879100987
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: e275fa2780e94fb78108af7ecfc31a3d
+run_name: nosy-rat-718
+run_uuid: e275fa2780e94fb78108af7ecfc31a3d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737879099944
+status: 3
+tags: []
+user_id: agupta
