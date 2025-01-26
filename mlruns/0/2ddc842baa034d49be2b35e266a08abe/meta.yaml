@@ -1,0 +1,15 @@
+artifact_uri: s3://2023aa05704-mlops-assignment/mlflow/0/2ddc842baa034d49be2b35e266a08abe/artifacts
+end_time: 1737898617125
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2ddc842baa034d49be2b35e266a08abe
+run_name: adorable-fowl-869
+run_uuid: 2ddc842baa034d49be2b35e266a08abe
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1737898596572
+status: 3
+tags: []
+user_id: agupta
