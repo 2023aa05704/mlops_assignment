@@ -1,18 +1,23 @@
-# Use an official Python runtime as a parent image
+# Use a lightweight Python base image
 FROM python:3.11-slim
 
-# Set the working directory in the container
+# Set environment variables to prevent Python from writing pyc files
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Set working directory
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy app files
+COPY src/ml_api.py /app/
+COPY requirements.txt /app/
 
-# Install any needed packages
+# Install dependencies
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 5000 available to the world outside the container
-EXPOSE 5000
+# Expose port
+EXPOSE 2222
 
-# Run app.py when the container launches
-CMD ["python", "src/app.py"]
+# Start the Flask app
+CMD ["python", "ml_api.py"]
