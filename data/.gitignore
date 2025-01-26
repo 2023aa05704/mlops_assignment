@@ -1,2 +1,6 @@
 /housing.csv
 /housing_pre.csv
+/processed_X_test.csv
+/processed_X_train.csv
+/processed_y_test.csv
+/processed_y_train.csv
