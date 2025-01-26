@@ -3,11 +3,9 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
       - m1
   pull_request:
     branches:
-      - main
       - m1
 
 jobs:
