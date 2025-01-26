@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - m1
-      -main
+      - main
   pull_request:
     branches:
       - m1
-      -main
+      - main
 
 jobs:
   lint:
